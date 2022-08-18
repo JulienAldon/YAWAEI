@@ -3,6 +3,8 @@ import requests
 from time import sleep
 from abc import ABC, abstractmethod
 from checkers import check_autologin
+import re
+import json
 
 from constants import PROMOTIONS
 
@@ -13,6 +15,12 @@ class Intranet(ABC):
     :type token: str
     """
 
+    @abstractmethod
+    async def getCurrentScholarYear(self):
+        """Get current Scolar year from the intranet
+        """
+        ...
+    
     @abstractmethod
     async def getStudents(self, promotions):
         """Get list of students of the given promotions
@@ -105,6 +113,12 @@ class Intra(Intranet):
     def set_token(self, token):
         self.token = check_autologin(token)
 
+    def getCurrentScholarYear(self):
+        content = requests.get(f'https://intra.epitech.eu/').content.decode('utf-8')
+        matches = re.finditer(r'\"scolaryear\":([0-9]{4})', content)
+        result = filter(id, matches)
+        return next(result)[1]
+ 
     def getStudents(self, promotion, year):
         results, nb_items, total = [], 0, 1
         promo = f'{PROMOTIONS[promotion]}'
@@ -115,7 +129,6 @@ class Intra(Intranet):
             except Exception as e:
                 print(f'[getStudents] An error occured while asking intra : {e}')
                 return None
-            print(req.json())
             results += [elem['login'] for elem in req.json()['items']]
             total = req.json()['total']
             nb_items += len(req.json()['items'])
