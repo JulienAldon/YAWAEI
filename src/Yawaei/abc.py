@@ -58,7 +58,7 @@ class Intranet(ABC):
         
         :param activity: Activity url
         :type activity: str
-        :param date: date of event to get 
+        :param date: date of event to get (format: YYYY-MM-DD)
         :type date: typing.Optional(str)
         :returns: Events code of the activity
         :rtype: list
@@ -107,6 +107,6 @@ class Intranet(ABC):
         :param code: module code
         :type code: st
         :param instance: module instance
-        :type instance: st
+        :type instance: str
         """
         ...

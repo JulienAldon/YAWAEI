@@ -66,7 +66,6 @@ class AutologinIntranet(Intranet):
 
     def get_events(self, activity, date=None):
         try:
-            print(self.token)
             activities = requests.get(f'{self.token}{activity}?format=json')
         except Exception as e:
             print(f'An error occured while asking intra : {e}')
@@ -75,8 +74,7 @@ class AutologinIntranet(Intranet):
         events = activities_json.get('events', None)
         if events == None:
             error_message = activities_json.get('message', None)
-            print(error_message)
-            print('An error occured with the request : unable to get correct content')
+            print('An error occured with the request : unable to get content {error_message}')
             return None
         if date:
             today_event = [
@@ -88,12 +86,15 @@ class AutologinIntranet(Intranet):
         return events
 
     def get_registered_students(self, event):
-        students = requests.get(
-            f'{self.token}{event}/registered?format=json')
-        presence = {
-            a['login'] : a['present']
-            for a in students.json()
-        }
+        try:
+            students = requests.get(
+                f'{self.token}{event}/registered?format=json')
+            presence = {
+                a['login'] : a['present']
+                for a in students.json()
+            }
+        except Exception as e:
+            print(f'An error occured while asking intra : {e}')
         return presence
     
     def get_activities(self, year, codeModule, codeInstance):
