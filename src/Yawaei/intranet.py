@@ -64,7 +64,7 @@ class AutologinIntranet(Intranet):
         sleep(0.2) # HACK: avoid intra rate limit
         return req.json()
 
-    def get_events(self, activity, date=None):
+    def get_events(self, activity, *, date=None, hour=None):
         try:
             activities = requests.get(f'{self.token}{activity}?format=json')
         except Exception as e:
@@ -76,11 +76,25 @@ class AutologinIntranet(Intranet):
             error_message = activities_json.get('message', None)
             print('An error occured with the request : unable to get content {error_message}')
             return None
-        if date:
+        if date and hour:
+            today_event = [
+                a['code'] 
+                for a in events
+                if a['begin'][:16] == f'{date} {hour}'
+            ]
+            return today_event
+        elif date:
             today_event = [
                 a['code'] 
                 for a in events
                 if a['begin'][:10] == date
+            ]
+            return today_event
+        elif hour:
+            today_event = [
+                a['code'] 
+                for a in events
+                if a['begin'][11:16] == hour
             ]
             return today_event
         return events
